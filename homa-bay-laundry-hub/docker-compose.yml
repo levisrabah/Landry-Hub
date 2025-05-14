@@ -4,8 +4,8 @@ services:
     image: postgres:15
     environment:
       POSTGRES_DB: homabay_laundry
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: levis
+      POSTGRES_PASSWORD: rabah9598
     ports:
       - '5432:5432'
     volumes:

@@ -10,7 +10,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,10 +19,15 @@ const Login = () => {
     try {
       const res = await axios.post('/api/auth/login', form);
       login(res.data.user, res.data.access_token);
-      // Redirect based on role
-      if (res.data.user.role === 'provider') navigate('/provider/dashboard');
-      else if (res.data.user.role === 'admin') navigate('/admin/dashboard');
-      else navigate('/');
+
+      // Navigate based on role
+      if (res.data.user.role === 'provider') {
+        navigate('/provider/dashboard');
+      } else if (res.data.user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');
     } finally {
@@ -65,4 +70,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;
