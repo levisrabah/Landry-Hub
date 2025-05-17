@@ -8,19 +8,25 @@ from config import Config
 # Extensions
 mail = Mail()
 db = SQLAlchemy()
-jwt = JWTManager()
+jwt = JWTManager()  # Initialize JWTManager first
 migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    # Configure JWT settings
+    app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.JWT_ACCESS_TOKEN_EXPIRES
+    app.config['JWT_IDENTITY_CLAIM'] = 'identity'  # Explicitly set identity claim
+    
+    # Initialize extensions
     db.init_app(app)
-    jwt.init_app(app)
+    jwt.init_app(app)  # Now properly configured
     mail.init_app(app)
     migrate.init_app(app, db)
 
-    # Register blueprints here
+    # Register blueprints
     from .routes.auth import auth_bp
     from .routes.providers import providers_bp
     from .routes.services import services_bp
@@ -39,4 +45,13 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(integrations_bp)
 
-    return app 
+    # Add JWT claims loader (optional but recommended)
+    @jwt.user_identity_loader
+    def user_identity_lookup(user):
+        """Convert user object to identity dictionary"""
+        return {
+            'id': str(user.id),
+            'role': user.role
+        }
+
+    return app
