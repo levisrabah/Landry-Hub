@@ -38,15 +38,14 @@ def login():
     user = User.query.filter_by(email=email).first()
     if not user or not user.check_password(password):
         return jsonify({'error': 'Invalid credentials'}), 401
-    access_token = create_access_token(identity={
-        'id': user.id,
-        'role': user.role,
-        'name': user.name,
-        'email': user.email
-    })
-    return jsonify({'access_token': access_token, 'user': {
-        'id': user.id,
-        'role': user.role,
-        'name': user.name,
-        'email': user.email
-    }}), 200 
+    # Only pass user.id as identity (must be str or int)
+    access_token = create_access_token(identity=user.id)
+    return jsonify({
+        'access_token': access_token,
+        'user': {
+            'id': user.id,
+            'role': user.role,
+            'name': user.name,
+            'email': user.email
+        }
+    }), 200
