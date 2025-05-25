@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import { registerUser } from '../services/api';
 
@@ -7,14 +7,14 @@ const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('Customer');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     const userData = { username, password, role };
     try {
       await registerUser(userData);
-      history.push('/login');
+      navigate('/login');
     } catch (error) {
       console.error('Registration failed', error);
     }
