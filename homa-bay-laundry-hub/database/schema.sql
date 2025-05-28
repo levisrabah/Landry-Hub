@@ -19,7 +19,7 @@ CREATE TABLE providers (
     contact_info VARCHAR(100),
     is_verified BOOLEAN DEFAULT FALSE,
     profile_photo VARCHAR(255),
-    before_after_photos TEXT[],
+    before_after_photos JSONB,
     availability JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -22,7 +22,7 @@ def create_app():
     
     # Initialize extensions
     db.init_app(app)
-    jwt.init_app(app)  # Now properly configured
+    jwt.init_app(app)  
     mail.init_app(app)
     migrate.init_app(app, db)
 
