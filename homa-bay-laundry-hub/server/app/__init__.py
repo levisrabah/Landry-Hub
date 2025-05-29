@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 from flask_migrate import Migrate
 from config import Config
+from datetime import timedelta
 
 # Extensions
 mail = Mail()
@@ -17,7 +18,8 @@ def create_app():
 
     # Configure JWT settings
     app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.JWT_ACCESS_TOKEN_EXPIRES
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=30)  # Set token expiration to 30 days
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = Config.JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)  # Set refresh token expiration to 30 days
     app.config['JWT_IDENTITY_CLAIM'] = 'identity'  # Explicitly set identity claim
     
     # Initialize extensions
@@ -45,13 +47,15 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(integrations_bp)
 
-    # Add JWT claims loader (optional but recommended)
+    # Add JWT claims loader 
     @jwt.user_identity_loader
-    def user_identity_lookup(user):
+    def user_identity_lookup(identity):
         """Convert user object to identity dictionary"""
+        if isinstance(identity, dict):
+            return identity
         return {
-            'id': str(user.id),
-            'role': user.role
+            'id': str(identity.id),
+            'role': identity.role
         }
 
     return app
