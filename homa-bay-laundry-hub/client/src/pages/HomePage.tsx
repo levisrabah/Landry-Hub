@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Check, Clock, Truck, CreditCard, Award, ArrowRight } from 'lucide-react';
+import { Clock, Truck, CreditCard, Award, ArrowRight } from 'lucide-react';
 import TestimonialCard from '../components/TestimonialCard';
 import ServiceCard from '../components/ServiceCard';
 import CTASection from '../components/CTASection';

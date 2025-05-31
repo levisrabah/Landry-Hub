@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { loginUser, getCurrentUser, logoutUser } from '../api/auth';
 
+// Define the User interface
 interface User {
   id: string;
   name: string;
@@ -8,6 +9,7 @@ interface User {
   role: string;
 }
 
+// Define the AuthContextType interface
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -16,6 +18,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+// Create the AuthContext
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
@@ -36,8 +39,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setUser(userData);
         }
       } catch (error) {
-        // Token might be invalid or expired
-        localStorage.removeItem('token');
+        console.error('Error checking authentication:', error);
+        localStorage.removeItem('token'); // Clear invalid token
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -51,8 +54,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     try {
       const { token, user: userData } = await loginUser(email, password);
-      localStorage.setItem('token', token);
-      setUser(userData);
+      localStorage.setItem('token', token); // Store token in localStorage
+      setUser(userData); // Set user data
+    } catch (error) {
+      console.error('Login error:', error);
+      throw new Error('Invalid email or password'); // Re-throw error for the caller to handle
     } finally {
       setIsLoading(false);
     }
@@ -61,9 +67,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     setIsLoading(true);
     try {
-      await logoutUser();
-      localStorage.removeItem('token');
-      setUser(null);
+      await logoutUser(); // Call API to handle logout
+      localStorage.removeItem('token'); // Clear token from localStorage
+      setUser(null); // Clear user data
+    } catch (error) {
+      console.error('Logout error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const value = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user, // Boolean indicating if the user is logged in
     isLoading,
     login,
     logout,
@@ -80,6 +88,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// Export the useAuth hook as a named export
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

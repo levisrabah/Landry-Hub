@@ -4,10 +4,10 @@ import CTASection from '../components/CTASection';
 const AboutPage = () => {
   const teamMembers = [
     {
-      name: 'John Doe',
+      name: 'Levis Rabah',
       role: 'Founder & CEO',
       image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300',
-      bio: 'John founded Laundry Hub with a vision to revolutionize laundry services in Kenya.',
+      bio: 'Levis founded Laundry Hub with a vision to revolutionize laundry services in Kenya.',
     },
     {
       name: 'Jane Smith',

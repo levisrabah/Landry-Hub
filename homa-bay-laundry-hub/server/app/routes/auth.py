@@ -3,6 +3,7 @@ from app import db
 from app.models import User
 from flask_jwt_extended import create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -57,3 +58,22 @@ def login():
             'email': user.email
         }
     }), 200
+@auth_bp.route('/me', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    identity = get_jwt_identity()  # Contains {'id': user_id, 'role': role}
+    user = User.query.get(identity['id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    return jsonify({
+        'id': user.id,
+        'role': user.role,
+        'name': user.name,
+        'email': user.email
+    }), 200
+@auth_bp.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    # Placeholder – JWT tokens are stateless unless you use token blacklisting
+    return jsonify({'message': 'Logged out'}), 200

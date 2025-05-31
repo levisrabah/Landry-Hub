@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import {
-  Users, Package, Calendar, DollarSign, 
+  Package, Calendar, DollarSign, 
   Search, Filter, ChevronDown, Edit, Trash2,
   ArrowUpRight, ArrowDownRight, CheckCircle, XCircle
 } from 'lucide-react';
