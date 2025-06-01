@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models import User
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import jwt_required, get_jwt_identity
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -18,7 +17,7 @@ def register():
 
     if not all([name, email, password, role]):
         return jsonify({'error': 'Missing required fields'}), 400
-    if role not in ['customer', 'provider', 'admin']:  # Added 'admin' to valid roles
+    if role not in ['customer', 'provider', 'admin']:
         return jsonify({'error': 'Invalid role'}), 400
     if User.query.filter_by(email=email).first():
         return jsonify({'error': 'Email already registered'}), 400
@@ -29,7 +28,7 @@ def register():
     db.session.commit()
     return jsonify({'message': 'Registration successful'}), 201
 
-@auth_bp.route('/auth/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.json
     email = data.get('email')
@@ -44,7 +43,7 @@ def login():
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
-    identity = get_jwt_identity()  # Contains {'id': user_id, 'role': role}
+    identity = get_jwt_identity()
     user = User.query.get(identity['id'])
     if not user:
         return jsonify({'error': 'User not found'}), 404
@@ -55,8 +54,8 @@ def get_current_user():
         'name': user.name,
         'email': user.email
     }), 200
+
 @auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    # Placeholder – JWT tokens are stateless unless you use token blacklisting
     return jsonify({'message': 'Logged out'}), 200

@@ -28,7 +28,7 @@ def create_app():
     jwt.init_app(app)  
     mail.init_app(app)
     migrate.init_app(app, db)
-    CORS(app)
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})  # Enable CORS for all routes
 
     # Register blueprints
     from .routes.auth import auth_bp

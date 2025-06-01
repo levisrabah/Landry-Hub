@@ -1,17 +1,19 @@
 import axios from 'axios';
 
-const API_PREFIX = import.meta.env.VITE_API_BASE_URL || '/api/auth';
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+});
 
 export const loginUser = async (email: string, password: string) => {
-  const response = await axios.post(`${API_PREFIX}/login`, { email, password });
-  return response.data; // returns { access_token, user }
+  const response = await API.post('/auth/login', { email, password });
+  return response.data;
 };
 
 export const getCurrentUser = async () => {
   const token = localStorage.getItem('token');
   if (!token) throw new Error('No token found');
 
-  const response = await axios.get(`${API_PREFIX}/me`, {
+  const response = await API.get('/me', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -23,7 +25,7 @@ export const logoutUser = async () => {
   const token = localStorage.getItem('token');
   if (!token) return;
 
-  await axios.post(`${API_PREFIX}/logout`, {}, {
+  await API.post('/logout', {}, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
