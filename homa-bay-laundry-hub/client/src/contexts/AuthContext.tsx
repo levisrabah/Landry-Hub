@@ -96,3 +96,8 @@ export const useAuth = () => {
   }
   return context;
 };
+export { AuthContext }; // Export the context for direct access if needed
+export default AuthProvider; // Export the provider as default
+// This allows other components to use the AuthContext directly if needed
+// while still providing a convenient hook for most use cases.
+// This structure allows for easy access to authentication state and methods throughout the application.

@@ -10,10 +10,10 @@ const AboutPage = () => {
       bio: 'Levis founded Laundry Hub with a vision to revolutionize laundry services in Kenya.',
     },
     {
-      name: 'Jane Smith',
+      name: 'Caleb Oduor',
       role: 'Operations Manager',
       image: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=300',
-      bio: 'Jane ensures that all operations run smoothly and all customers receive excellent service.',
+      bio: 'Caleb ensures that all operations run smoothly and all customers receive excellent service.',
     },
     {
       name: 'David Kimani',

@@ -29,35 +29,18 @@ def register():
     db.session.commit()
     return jsonify({'message': 'Registration successful'}), 201
 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/auth/login', methods=['POST'])
 def login():
-    data = request.get_json()
+    data = request.json
     email = data.get('email')
     password = data.get('password')
-    
-    if not all([email, password]):
-        return jsonify({'error': 'Missing email or password'}), 400
-    
+
     user = User.query.filter_by(email=email).first()
-    if not user or not user.check_password(password):
-        return jsonify({'error': 'Invalid credentials'}), 401
-    
-    access_token = create_access_token(
-        identity={
-            'id': str(user.id),  # Ensure it's a string
-            'role': user.role     # Embed role to avoid DB queries
-        }
-    )
-    
-    return jsonify({
-        'access_token': access_token,
-        'user': {
-            'id': user.id,
-            'role': user.role,
-            'name': user.name,
-            'email': user.email
-        }
-    }), 200
+    if user and user.check_password(password):
+        access_token = create_access_token(identity={'id': user.id, 'role': user.role})
+        return jsonify({'access_token': access_token, 'user': {'id': user.id, 'email': user.email, 'role': user.role}})
+    return jsonify({'error': 'Invalid credentials'}), 401
+
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():

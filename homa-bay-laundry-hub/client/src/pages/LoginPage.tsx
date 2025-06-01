@@ -27,17 +27,11 @@ const LoginPage = () => {
     setError(null);
 
     try {
-      // Call the login function from AuthContext
       await login(formData.email, formData.password);
       toast.success('Login successful!');
-      navigate('/admin'); // Redirect to admin dashboard
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || 'Invalid email or password. Please try again.');
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
-      console.error('Login error:', err);
+      navigate('/admin');
+    } catch {
+      setError('Invalid email or password. Please try again.');
     } finally {
       setIsLoading(false);
     }

@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 from flask_migrate import Migrate
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 from config import Config
 from datetime import timedelta
 
@@ -28,7 +28,7 @@ def create_app():
     jwt.init_app(app)  
     mail.init_app(app)
     migrate.init_app(app, db)
-    CORS(app)  # Enable CORS for all routes
+    CORS(app)
 
     # Register blueprints
     from .routes.auth import auth_bp
