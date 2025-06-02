@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
+interface BookingStatus {
+  id: string;
+  status: string;
+}
+
 const BookingStatusUpdates = () => {
-  const [statusUpdates, setStatusUpdates] = useState([]);
+  const [statusUpdates, setStatusUpdates] = useState<BookingStatus[]>([]);
 
   useEffect(() => {
     const fetchStatuses = async () => {
       try {
-        const response = await axios.get('/api/bookings/status');
+        const response = await axios.get<{ data: BookingStatus[] }>('/api/bookings/status');
         setStatusUpdates(response.data.data);
       } catch (error) {
         console.error('Failed to fetch booking statuses:', error);

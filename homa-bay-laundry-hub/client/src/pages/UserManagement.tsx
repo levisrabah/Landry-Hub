@@ -2,8 +2,15 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
+type User = {
+  id: string | number;
+  name: string;
+  email: string;
+  role: string;
+};
+
 const UserManagement = () => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -12,7 +19,11 @@ const UserManagement = () => {
         const response = await axios.get('/api/admin/users');
         setUsers(response.data.data);
       } catch (error) {
-        toast.error(error.response?.data?.error || 'Failed to fetch users.');
+        if (axios.isAxiosError(error)) {
+          toast.error(error.response?.data?.error || 'Failed to fetch users.');
+        } else {
+          toast.error('Failed to fetch users.');
+        }
       } finally {
         setIsLoading(false);
       }

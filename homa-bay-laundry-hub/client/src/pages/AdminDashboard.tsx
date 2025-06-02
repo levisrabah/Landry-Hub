@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { getBookings, updateBookingStatus, deleteBooking } from '../api/bookings';
 import { useAuth } from '../contexts/AuthContext';
-import BookingStatusUpdates from '../components/BookingStatusUpdates'; // Import the component
+import BookingStatusUpdates from '../components/BookingStatusUpdates';
 
 interface Booking {
   id: string;
