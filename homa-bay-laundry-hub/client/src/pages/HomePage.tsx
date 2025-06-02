@@ -3,6 +3,7 @@ import { Clock, Truck, CreditCard, Award, ArrowRight } from 'lucide-react';
 import TestimonialCard from '../components/TestimonialCard';
 import ServiceCard from '../components/ServiceCard';
 import CTASection from '../components/CTASection';
+import LaundryServiceImage from '../assets/LaundryService.jpeg';
 
 const HomePage = () => {
   const features = [
@@ -47,7 +48,7 @@ const HomePage = () => {
       title: 'Ironing Service',
       description: 'Get perfectly pressed clothes ready to wear or hang.',
       icon: 'Iron',
-      price: 'From $3/item',
+      price: 'From Ksh.200/item',
       bgColor: 'bg-purple-50'
     }
   ];
@@ -84,7 +85,7 @@ const HomePage = () => {
             <div className="hidden lg:block">
               {/* This will be replaced with an actual image or animation */}
               <div className="bg-blue-300 bg-opacity-30 rounded-lg h-96 flex items-center justify-center">
-                <p className="text-lg font-medium">Laundry Service Image Placeholder</p>
+                <img src={LaundryServiceImage} alt="Laundry Service" className="w-full h-full object-cover rounded-lg" />
               </div>
             </div>
           </div>
@@ -183,14 +184,14 @@ const HomePage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <TestimonialCard
-              name="Sarah Johnson"
-              role="Regular Customer"
+              name="Eligio"
+              role="Student"
               image="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=100"
               quote="Laundry Hub has been a lifesaver for me! With my busy schedule, I never have time to do laundry properly. Their service is reliable and my clothes always come back perfectly clean."
               rating={5}
             />
             <TestimonialCard
-              name="Michael Chen"
+              name="Moses Oduor"
               role="Business Owner"
               image="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100"
               quote="We use Laundry Hub for our small restaurant's linens and staff uniforms. The quality is consistent and their commercial rates are very competitive. Highly recommended!"

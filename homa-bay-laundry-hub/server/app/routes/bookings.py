@@ -114,4 +114,13 @@ def update_status(booking_id):
     else:
         return jsonify({'error': 'Unauthorized'}), 403
     db.session.commit()
-    return jsonify({'message': f'Status updated to {booking.status}'}), 200 
+    return jsonify({'message': f'Status updated to {booking.status}'}), 200
+
+@bookings_bp.route('/status', methods=['GET'])
+def get_booking_statuses():
+    bookings = Booking.query.all()
+    return jsonify({
+        'success': True,
+        'data': [{'id': b.id, 'status': b.status} for b in bookings],
+        'error': None
+    }), 200

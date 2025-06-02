@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import {
-  Package, Calendar, DollarSign, 
+  Package, Calendar, DollarSign,
   Search, Filter, ChevronDown, Edit, Trash2,
   ArrowUpRight, ArrowDownRight, CheckCircle, XCircle
 } from 'lucide-react';
 import { getBookings, updateBookingStatus, deleteBooking } from '../api/bookings';
 import { useAuth } from '../contexts/AuthContext';
+import BookingStatusUpdates from '../components/BookingStatusUpdates'; // Import the component
 
 interface Booking {
   id: string;
@@ -47,11 +48,11 @@ const AdminDashboard = () => {
     try {
       const data = await getBookings();
       setBookings(data);
-      
+
       // Calculate stats
       const completed = data.filter(booking => booking.status === 'completed').length;
       const pending = data.filter(booking => booking.status === 'pending').length;
-      
+
       setStats({
         totalBookings: data.length,
         pendingBookings: pending,
@@ -69,20 +70,20 @@ const AdminDashboard = () => {
   const handleStatusChange = async (bookingId: string, newStatus: string) => {
     try {
       await updateBookingStatus(bookingId, newStatus);
-      setBookings(bookings.map(booking => 
+      setBookings(bookings.map(booking =>
         booking.id === bookingId ? { ...booking, status: newStatus } : booking
       ));
       toast.success('Booking status updated successfully');
-      
+
       // Update stats
-      const completed = bookings.filter(booking => 
+      const completed = bookings.filter(booking =>
         booking.id === bookingId ? newStatus === 'completed' : booking.status === 'completed'
       ).length;
-      
-      const pending = bookings.filter(booking => 
+
+      const pending = bookings.filter(booking =>
         booking.id === bookingId ? newStatus === 'pending' : booking.status === 'pending'
       ).length;
-      
+
       setStats({
         ...stats,
         pendingBookings: pending,
@@ -100,7 +101,7 @@ const AdminDashboard = () => {
         await deleteBooking(bookingId);
         setBookings(bookings.filter(booking => booking.id !== bookingId));
         toast.success('Booking deleted successfully');
-        
+
         // Update stats
         const deletedBooking = bookings.find(booking => booking.id === bookingId);
         setStats({
@@ -118,18 +119,18 @@ const AdminDashboard = () => {
   };
 
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = booking.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         booking.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.phone.includes(searchTerm);
-    
+    const matchesSearch = booking.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.phone.includes(searchTerm);
+
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     const matchesService = serviceFilter === 'all' || booking.service === serviceFilter;
-    
+
     return matchesSearch && matchesStatus && matchesService;
   });
 
   const getServiceLabel = (serviceId: string) => {
-    const services: {[key: string]: string} = {
+    const services: { [key: string]: string } = {
       'wash-fold': 'Wash & Fold',
       'dry-cleaning': 'Dry Cleaning',
       'ironing': 'Ironing',
@@ -137,7 +138,7 @@ const AdminDashboard = () => {
       'bedding': 'Bedding & Linens',
       'commercial': 'Commercial',
     };
-    
+
     return services[serviceId] || serviceId;
   };
 
@@ -157,12 +158,12 @@ const AdminDashboard = () => {
   };
 
   const getPaymentMethodLabel = (method: string) => {
-    const methods: {[key: string]: string} = {
+    const methods: { [key: string]: string } = {
       'mpesa': 'M-Pesa',
       'card': 'Card',
       'cash': 'Cash',
     };
-    
+
     return methods[method] || method;
   };
 
@@ -177,8 +178,8 @@ const AdminDashboard = () => {
               <p className="opacity-90">Welcome back, {user?.name || 'Admin'}</p>
             </div>
             <div className="mt-4 md:mt-0">
-              <button 
-                onClick={fetchBookings} 
+              <button
+                onClick={fetchBookings}
                 className="bg-white text-blue-700 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition-colors"
               >
                 Refresh Data
@@ -209,7 +210,7 @@ const AdminDashboard = () => {
                 <span className="text-gray-500 ml-1">since last month</span>
               </div>
             </div>
-            
+
             {/* Pending Bookings */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <div className="flex items-center">
@@ -227,7 +228,7 @@ const AdminDashboard = () => {
                 <span className="text-gray-500 ml-1">since yesterday</span>
               </div>
             </div>
-            
+
             {/* Completed Bookings */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <div className="flex items-center">
@@ -245,7 +246,7 @@ const AdminDashboard = () => {
                 <span className="text-gray-500 ml-1">since last month</span>
               </div>
             </div>
-            
+
             {/* Revenue */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <div className="flex items-center">
@@ -267,11 +268,19 @@ const AdminDashboard = () => {
         </div>
       </section>
 
+      {/* Real-Time Booking Status Updates */}
+      <section className="py-8 bg-white">
+        <div className="container mx-auto px-4 md:px-6">
+          <h2 className="text-2xl font-bold mb-6">Real-Time Booking Status Updates</h2>
+          <BookingStatusUpdates />
+        </div>
+      </section>
+
       {/* Bookings Table */}
       <section className="py-8 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-6">Booking Management</h2>
-          
+
           {/* Filters */}
           <div className="bg-gray-50 p-4 rounded-lg mb-6">
             <div className="flex flex-col md:flex-row md:items-center gap-4">
@@ -290,7 +299,7 @@ const AdminDashboard = () => {
                   />
                 </div>
               </div>
-              
+
               {/* Status Filter */}
               <div className="md:w-48">
                 <div className="relative">
@@ -313,7 +322,7 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Service Filter */}
               <div className="md:w-48">
                 <div className="relative">
@@ -340,7 +349,7 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Table */}
           <div className="overflow-x-auto bg-white rounded-lg shadow">
             {isLoading ? (
@@ -417,7 +426,7 @@ const AdminDashboard = () => {
                         <button className="text-blue-600 hover:text-blue-900 mr-3">
                           <Edit className="h-5 w-5" />
                         </button>
-                        <button 
+                        <button
                           className="text-red-600 hover:text-red-900"
                           onClick={() => handleDeleteBooking(booking.id)}
                         >

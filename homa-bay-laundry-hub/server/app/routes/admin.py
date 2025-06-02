@@ -22,11 +22,14 @@ def dashboard():
     }), 200
 
 @admin_bp.route('/analytics', methods=['GET'])
-@role_required('admin')
 def analytics():
-    status_counts = db.session.query(Booking.status, func.count(Booking.id)).group_by(Booking.status).all()
+    status_counts = Booking.query.with_entities(Booking.status, func.count(Booking.id)).group_by(Booking.status).all()
     return jsonify({
-        'bookings_by_status': {status: count for status, count in status_counts}
+        'success': True,
+        'data': {
+            'bookings_by_status': {status: count for status, count in status_counts}
+        },
+        'error': None
     }), 200
 
 @admin_bp.route('/users', methods=['GET'])

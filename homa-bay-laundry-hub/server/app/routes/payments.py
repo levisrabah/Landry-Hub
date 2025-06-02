@@ -22,68 +22,23 @@ class PaymentService:
         return hashlib.sha256(f"{MPESA_CONSUMER_KEY}{MPESA_CONSUMER_SECRET}{timestamp}".encode()).hexdigest()
 
 @payments_bp.route('/initiate', methods=['POST'])
-@jwt_required()
 def initiate_payment():
     data = request.get_json()
-    payment_type = data.get('type')  # 'booking' or 'registration'
-    amount = data.get('amount')
-    phone = data.get('phone')  # M-Pesa phone number
-    
-    if not all([payment_type, amount, phone]):
-        return jsonify({'error': 'Missing required fields'}), 400
+    booking_id = data.get('bookingId')
+    method = data.get('method')
 
-    user_id = get_jwt_identity()['id']
-    
-    if payment_type == 'booking':
-        booking_id = data.get('booking_id')
-        booking = Booking.query.get(booking_id)
-        if not booking or booking.customer_id != user_id:
-            return jsonify({'error': 'Invalid booking'}), 400
-        
-        # In production: Call actual M-Pesa API here
-        payment = Payment(
-            booking_id=booking_id,
-            amount=amount,
-            status='Pending',
-            mpesa_receipt=f"SIM_{datetime.utcnow().timestamp()}",
-            payment_type='booking'
-        )
-        
-    elif payment_type == 'registration':
-        provider = Provider.query.filter_by(user_id=user_id).first()
-        if not provider:
-            return jsonify({'error': 'Provider not found'}), 404
-        
-        # Create a dummy booking for registration payments
-        reg_booking = Booking(
-            customer_id=user_id,
-            provider_id=provider.id,
-            service_id=None,
-            status='Completed',
-            scheduled_at=datetime.utcnow(),
-            completed_at=datetime.utcnow(),
-            is_registration_payment=True
-        )
-        db.session.add(reg_booking)
-        db.session.flush()  # Get the ID
-        
-        payment = Payment(
-            booking_id=reg_booking.id,
-            amount=amount,
-            status='Completed',  # Registration payments complete immediately
-            mpesa_receipt=f"REG_{datetime.utcnow().timestamp()}",
-            payment_type='registration'
-        )
-    
-    db.session.add(payment)
-    db.session.commit()
-    
-    return jsonify({
-        'message': 'Payment initiated',
-        'payment_id': payment.id,
-        'mpesa_receipt': payment.mpesa_receipt,
-        'status': payment.status
-    }), 201
+    if not booking_id or not method:
+        return jsonify({'success': False, 'data': None, 'error': 'Missing booking ID or payment method.'}), 400
+
+    # Simulate payment logic
+    if method == 'mpesa':
+        # Simulate M-Pesa payment
+        return jsonify({'success': True, 'data': 'M-Pesa payment initiated.', 'error': None}), 200
+    elif method == 'card':
+        # Simulate card payment
+        return jsonify({'success': True, 'data': 'Card payment initiated.', 'error': None}), 200
+    else:
+        return jsonify({'success': False, 'data': None, 'error': 'Invalid payment method.'}), 400
 
 @payments_bp.route('/webhook/mpesa', methods=['POST'])
 def mpesa_webhook():
