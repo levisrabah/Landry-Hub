@@ -19,52 +19,38 @@ def allowed_file(filename):
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    profile_photo_path = None
+    data = request.form
+    name = data.get('name')
+    email = data.get('email')
+    password = data.get('password')
+    role = data.get('role', 'provider')  # Default to provider
+    location = data.get('location')
+    profile_photo = None
+
+    # Validate required fields
+    if not all([name, email, password, location]):
+        return jsonify({'error': 'Missing required fields'}), 400
 
     # Handle profile photo upload
     if 'profilePhoto' in request.files:
         file = request.files['profilePhoto']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            profile_photo_path = os.path.join(UPLOAD_FOLDER, filename)
-
-            # Ensure the directory exists before saving
-            os.makedirs(os.path.dirname(profile_photo_path), exist_ok=True)
-            file.save(profile_photo_path)
+            profile_photo = os.path.join(UPLOAD_FOLDER, filename)
+            os.makedirs(os.path.dirname(profile_photo), exist_ok=True)
+            file.save(profile_photo)
         else:
             return jsonify({'error': 'Invalid file type for profile photo'}), 400
 
-    data = request.form
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password')
-    role = data.get('role')  # 'customer' or 'provider'
-    phone = data.get('phone')
-    location = data.get('location') if role == 'provider' else None
-
-    # Validate required fields
-    if not all([name, email, password, role]):
-        return jsonify({'error': 'Missing required fields'}), 400
-    if role not in ['customer', 'provider', 'admin']:
-        return jsonify({'error': 'Invalid role'}), 400
-    if User.query.filter_by(email=email).first():
-        return jsonify({'error': 'Email already registered'}), 400
-
     # Create user
-    user = User(name=name, email=email, role=role, phone=phone)
+    user = User(name=name, email=email, role=role)
     user.set_password(password)
     db.session.add(user)
     db.session.commit()
 
-    # If provider, create provider profile
+    # Create provider profile
     if role == 'provider':
-        if not location:
-            return jsonify({'error': 'Location is required for providers'}), 400
-        provider = Provider(
-            user_id=user.id,
-            location=location,
-            profile_photo=profile_photo_path
-        )
+        provider = Provider(user_id=user.id, location=location, profile_photo=profile_photo)
         db.session.add(provider)
         db.session.commit()
 
@@ -79,8 +65,16 @@ def login():
     user = User.query.filter_by(email=email).first()
     if user and user.check_password(password):
         access_token = create_access_token(identity={'id': user.id, 'role': user.role})
-        return jsonify({'access_token': access_token, 'user': {'id': user.id, 'email': user.email, 'role': user.role}})
-    return jsonify({'error': 'Invalid credentials'}), 401
+        return jsonify({
+            'success': True,
+            'access_token': access_token,
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'role': user.role
+            }
+        })
+    return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
 
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()

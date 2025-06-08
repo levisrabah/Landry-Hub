@@ -31,20 +31,19 @@ const SignupPage = () => {
     formDataToSend.append('email', formData.email);
     formDataToSend.append('password', formData.password);
     formDataToSend.append('location', formData.location);
+    formDataToSend.append('role', 'provider'); // Explicitly set role
     if (profilePhoto) {
       formDataToSend.append('profilePhoto', profilePhoto);
     }
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
     try {
-      await axios.post(`${API_URL}/api/auth/register`, formDataToSend, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       toast.success('Signup successful! Please log in.');
-      navigate('/login');
+      navigate('/login'); // Redirect to login page after signup
     } catch (error) {
       console.error(error);
       toast.error('Signup failed. Please try again.');

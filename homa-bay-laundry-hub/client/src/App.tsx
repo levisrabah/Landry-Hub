@@ -13,6 +13,7 @@ import SignupPage from './pages/SignupPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
 import { AuthProvider } from './contexts/AuthContext';
+import ProviderDashboard from './pages/ProviderDashboard'; // Import provider dashboard
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/provider-dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <ProviderDashboard />
                   </ProtectedRoute>
                 } 
               />

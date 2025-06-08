@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Lock, AlertCircle } from 'lucide-react';
+import axios from 'axios';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); 
+  useAuth(); 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,17 +22,36 @@ const LoginPage = () => {
     if (error) setError(null); // Clear error when user starts typing
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      await login(formData.email, formData.password);
-      toast.success('Login successful!');
-      navigate('/admin');
-    } catch {
-      setError('Invalid email or password. Please try again.');
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (response.data.success) {
+        toast.success('Login successful!');
+        localStorage.setItem('token', response.data.access_token);
+
+        // Redirect based on user role
+        const userRole = response.data.user.role;
+        if (userRole === 'admin') {
+          navigate('/admin');
+        } else if (userRole === 'provider') {
+          navigate('/provider-dashboard'); // Replace with the actual provider dashboard route
+        } else {
+          navigate('/'); // Default redirect for customers
+        }
+      } else {
+        toast.error(response.data.error || 'Login failed.');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +81,7 @@ const LoginPage = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleLogin}>
               <div className="mb-6">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
