@@ -8,31 +8,25 @@ import {
 import { getBookings, updateBookingStatus, deleteBooking } from '../api/bookings';
 import { useAuth } from '../contexts/AuthContext';
 import BookingStatusUpdates from '../components/BookingStatusUpdates';
+import { BookingData } from '../api/bookings'; 
 
-interface Booking {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  service: string;
-  date: string;
-  time: string;
-  paymentMethod: string;
-  status: string;
-  createdAt: string;
+interface Stats {
+  totalBookings: number;
+  pendingBookings: number;
+  completedBookings: number;
+  revenue: number;
 }
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<BookingData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState('all');
 
   // Stats
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<Stats>({
     totalBookings: 0,
     pendingBookings: 0,
     completedBookings: 0,
@@ -119,17 +113,15 @@ const AdminDashboard = () => {
   };
 
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = booking.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.phone.includes(searchTerm);
+    const matchesSearch = booking.customerName.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
-    const matchesService = serviceFilter === 'all' || booking.service === serviceFilter;
+    const matchesService = serviceFilter === 'all' || booking.serviceType === serviceFilter;
 
     return matchesSearch && matchesStatus && matchesService;
   });
 
-  const getServiceLabel = (serviceId: string) => {
+  const getServiceLabel = (serviceType: string) => {
     const services: { [key: string]: string } = {
       'wash-fold': 'Wash & Fold',
       'dry-cleaning': 'Dry Cleaning',
@@ -139,7 +131,7 @@ const AdminDashboard = () => {
       'commercial': 'Commercial',
     };
 
-    return services[serviceId] || serviceId;
+    return services[serviceType] || serviceType;
   };
 
   const getStatusColor = (status: string) => {
@@ -157,7 +149,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const getPaymentMethodLabel = (method: string) => {
+  const getPaymentMethodLabel = (method: string = '') => {
     const methods: { [key: string]: string } = {
       'mpesa': 'M-Pesa',
       'card': 'Card',
@@ -165,6 +157,12 @@ const AdminDashboard = () => {
     };
 
     return methods[method] || method;
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string = '') => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString();
   };
 
   return (
@@ -292,7 +290,7 @@ const AdminDashboard = () => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Search by name, email or phone..."
+                    placeholder="Search by customer name..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -368,7 +366,7 @@ const AdminDashboard = () => {
                       Service
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date & Time
+                      Dates
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Payment
@@ -388,23 +386,24 @@ const AdminDashboard = () => {
                         <div className="flex items-center">
                           <div className="bg-blue-100 h-10 w-10 rounded-full flex items-center justify-center">
                             <span className="text-blue-600 font-medium">
-                              {booking.name.charAt(0).toUpperCase()}
+                              {booking.customerName.charAt(0).toUpperCase()}
                             </span>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{booking.name}</div>
-                            <div className="text-sm text-gray-500">{booking.email}</div>
-                            <div className="text-sm text-gray-500">{booking.phone}</div>
+                            <div className="text-sm font-medium text-gray-900">{booking.customerName}</div>
+                            <div className="text-sm text-gray-500">ID: {booking.id?.substring(0, 8)}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{getServiceLabel(booking.service)}</div>
-                        <div className="text-sm text-gray-500">ID: {booking.id.substring(0, 8)}</div>
+                        <div className="text-sm text-gray-900">{getServiceLabel(booking.serviceType)}</div>
+                        <div className="text-sm text-gray-500">Created: {formatDate(booking.createdAt)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{booking.date}</div>
-                        <div className="text-sm text-gray-500 capitalize">{booking.time}</div>
+                        <div className="text-sm text-gray-900">Pickup: {formatDate(booking.pickupDate)}</div>
+                        {booking.deliveryDate && (
+                          <div className="text-sm text-gray-500">Delivery: {formatDate(booking.deliveryDate)}</div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{getPaymentMethodLabel(booking.paymentMethod)}</div>
@@ -412,9 +411,9 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <select
-                          value={booking.status}
-                          onChange={(e) => handleStatusChange(booking.id, e.target.value)}
-                          className={`text-sm font-medium px-3 py-1 rounded-full ${getStatusColor(booking.status)}`}
+                          value={booking.status || 'pending'}
+                          onChange={(e) => handleStatusChange(booking.id!, e.target.value)}
+                          className={`text-sm font-medium px-3 py-1 rounded-full ${getStatusColor(booking.status || 'pending')}`}
                         >
                           <option value="pending">Pending</option>
                           <option value="processing">Processing</option>
@@ -428,7 +427,7 @@ const AdminDashboard = () => {
                         </button>
                         <button
                           className="text-red-600 hover:text-red-900"
-                          onClick={() => handleDeleteBooking(booking.id)}
+                          onClick={() => handleDeleteBooking(booking.id!)}
                         >
                           <Trash2 className="h-5 w-5" />
                         </button>

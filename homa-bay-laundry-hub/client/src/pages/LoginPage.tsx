@@ -6,7 +6,7 @@ import { User, Lock, AlertCircle } from 'lucide-react';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // Removed setAuthData as it's not part of AuthContext
+  const { login } = useAuth(); 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
