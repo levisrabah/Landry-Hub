@@ -1,5 +1,8 @@
 import { WashingMachine, Shirt, BusFront as Iron, Sparkles, Wind, Briefcase, Clock, Check } from 'lucide-react';
 import CTASection from '../components/CTASection';
+import ServiceCard from '../components/ServiceCard';
+import { useNotification } from '../contexts/NotificationContext';
+import { useEffect } from 'react';
 
 const ServicesPage = () => {
   const services = [
@@ -116,6 +119,12 @@ const ServicesPage = () => {
     }
   ];
 
+  const { pushNotification } = useNotification();
+
+  useEffect(() => {
+    pushNotification({ type: 'info', message: 'Check out our new Express Service!', duration: 4000 });
+  }, []);
+
   return (
     <div className="pt-16">
       {/* Hero Section */}
@@ -133,28 +142,13 @@ const ServicesPage = () => {
       {/* Services List */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, index) => (
-              <div key={service.id} id={service.id} className={`${index % 2 === 1 ? 'lg:flex-row-reverse' : ''} flex flex-col lg:flex-row gap-12`}>
-                <div className={`w-full lg:w-1/3 ${service.bgColor} rounded-xl p-8 flex flex-col items-center justify-center text-center`}>
-                  <div className="mb-4">{service.icon}</div>
-                  <h3 className="text-2xl font-bold mb-2">{service.title}</h3>
-                  <p className="text-gray-600 mb-4">{service.description}</p>
-                  <span className="font-semibold text-blue-600">{service.price}</span>
-                </div>
-                <div className="w-full lg:w-2/3">
-                  <h3 className="text-2xl font-bold mb-6">What's Included</h3>
-                  <ul className="space-y-4">
-                    {service.details.map((detail, i) => (
-                      <li key={i} className="flex items-start">
-                        <Check className="h-5 w-5 text-blue-600 mr-3 mt-0.5" />
-                        <span className="text-gray-600">{detail}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+              <ServiceCard key={service.id} service={service} />
             ))}
+          </div>
+          <div className="text-center mt-10">
+            <a href="/booking" className="bg-blue-600 text-white font-medium py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors inline-block animate-bounce">Book a Service</a>
           </div>
         </div>
       </section>

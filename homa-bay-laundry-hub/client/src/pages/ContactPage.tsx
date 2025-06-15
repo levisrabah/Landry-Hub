@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { toast } from 'react-hot-toast';
+import { useNotification } from '../contexts/NotificationContext';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 import { sendContactMessage } from '../api/contact';
 
@@ -12,6 +12,7 @@ const ContactPage = () => {
     subject: '',
     message: '',
   });
+  const { pushNotification } = useNotification();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -36,9 +37,9 @@ const ContactPage = () => {
       });
       
       // Show success message
-      toast.success('Message sent successfully! We will contact you shortly.');
+      pushNotification({ type: 'success', message: 'Message sent successfully! We will contact you shortly.', duration: 4000 });
     } catch (error) {
-      toast.error('Failed to send message. Please try again.');
+      pushNotification({ type: 'error', message: 'Failed to send message. Please try again.', duration: 4000 });
       console.error('Contact form error:', error);
     } finally {
       setIsLoading(false);
@@ -46,7 +47,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="pt-16">
+    <div className="pt-16 animate-fade-in">
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-blue-400 text-white py-16 md:py-20">
         <div className="container mx-auto px-4 md:px-6">

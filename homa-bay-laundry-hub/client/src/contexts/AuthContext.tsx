@@ -2,11 +2,14 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { loginUser, getCurrentUser, logoutUser } from '../api/auth';
 
 // Define the User interface
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
   role: string;
+  location?: string;
+  profile_photo?: string;
+  is_verified?: boolean;
 }
 
 // Define the AuthContextType interface

@@ -1,9 +1,15 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, Truck, CreditCard, Award, ArrowRight } from 'lucide-react';
 import TestimonialCard from '../components/TestimonialCard';
 import ServiceCard from '../components/ServiceCard';
 import CTASection from '../components/CTASection';
 import LaundryServiceImage from '../assets/LaundryService.jpeg';
+import ProviderCard from '../components/ProviderCard';
+import LoyaltyBanner from '../components/LoyaltyBanner';
+import ReferralBanner from '../components/ReferralBanner';
+import { getProviders, Provider } from '../api/providers';
+import { useNotification } from '../contexts/NotificationContext';
 
 const HomePage = () => {
   const features = [
@@ -52,6 +58,15 @@ const HomePage = () => {
       bgColor: 'bg-purple-50'
     }
   ];
+
+  const [topProviders, setTopProviders] = useState<Provider[]>([]);
+  const { pushNotification } = useNotification();
+
+  useEffect(() => {
+    getProviders({ per_page: 3 }).then(res => setTopProviders(res.providers)).catch(() => {});
+    // Demo notification
+    pushNotification({ type: 'info', message: 'Welcome to Laundry Hub! Book your first service and get a discount.', duration: 5000 });
+  }, []);
 
   return (
     <div className="pt-16">
@@ -207,6 +222,30 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Browse Providers Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Browse Top Providers</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">Discover trusted, verified laundry providers near you.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {topProviders.map((provider) => (
+              <ProviderCard key={provider.id} provider={provider} />
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link to="/services" className="bg-blue-600 text-white font-medium py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors inline-block">View All Providers</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Loyalty & Referral Banners */}
+      <div className="container mx-auto px-4 md:px-6 flex flex-col md:flex-row gap-4 mb-8">
+        <LoyaltyBanner points={120} discount={10} />
+        <ReferralBanner code="HUBFRIEND" bonus="Get Ksh.100 off for every referral!" />
+      </div>
 
       {/* CTA Section */}
       <CTASection 

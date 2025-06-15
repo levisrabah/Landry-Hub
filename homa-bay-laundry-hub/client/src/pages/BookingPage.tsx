@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Clock, MapPin, CreditCard, Phone, Check } from 'lucide-react';
 import { createBooking } from '../api/bookings';
+import { initiateMpesaPayment } from '../api/payments';
+import BookingCard from '../components/BookingCard';
+import Loader from '../components/Loader';
+import { useNotification } from '../contexts/NotificationContext';
 
 interface FormData {
   name: string;
@@ -18,7 +22,11 @@ interface FormData {
 
 const BookingPage = () => {
   const navigate = useNavigate();
+  const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [booking, setBooking] = useState<any>(null);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  const { pushNotification } = useNotification();
 
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -58,13 +66,22 @@ const BookingPage = () => {
 
     try {
       // Call the API
-      await createBooking(formData);
+      const bookingResponse = await createBooking({
+        customerName: formData.name,
+        serviceType: formData.service,
+        pickupDate: formData.date,
+        paymentMethod: formData.paymentMethod,
+      });
       
       // Show success message
       toast.success('Booking successful! We will confirm shortly.');
       
       // Redirect to home page or confirmation page
       navigate('/');
+
+      // On booking success, go to step 2 (confirmation/payment)
+      setBooking(bookingResponse);
+      setStep(2);
     } catch (error) {
       toast.error('Failed to create booking. Please try again.');
       console.error('Booking error:', error);
@@ -72,6 +89,8 @@ const BookingPage = () => {
       setIsLoading(false);
     }
   };
+
+  // On payment, show notification and update paymentStatus
 
   return (
     <div className="pt-16">
@@ -346,16 +365,12 @@ const BookingPage = () => {
         </div>
       </section>
 
-      {/* Payment Form - Conditionally Rendered */}
-      {/*
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-4xl mx-auto">
-            <PaymentForm bookingId={selectedBookingId} />
-          </div>
-        </div>
-      </section>
-      */}
+      {/* Stepper UI */}
+      {/* Step 1: Booking Form */}
+      {/* Step 2: Confirmation & Payment */}
+      {/* Step 3: Order Tracking (BookingCard) */}
+      {/* Use Loader when isLoading */}
+      {/* Use pushNotification for booking/payment status */}
     </div>
   );
 };

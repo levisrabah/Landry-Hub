@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/home/user/PROJECTS/Landry Hub/homa-bay-laundry-hub/server/venv/bin/python3" "$0" "$@"
+'''exec' "/home/levis/PROJECTS/LAUNDRY HUB/homa-bay-laundry-hub/server/venv/bin/python3" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

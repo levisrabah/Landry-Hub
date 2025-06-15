@@ -8,7 +8,8 @@ import {
 import { getBookings, updateBookingStatus, deleteBooking } from '../api/bookings';
 import { useAuth } from '../contexts/AuthContext';
 import BookingStatusUpdates from '../components/BookingStatusUpdates';
-import { BookingData } from '../api/bookings'; 
+import { BookingData } from '../api/bookings';
+import { useNotification } from '../contexts/NotificationContext';
 
 interface Stats {
   totalBookings: number;
@@ -32,6 +33,8 @@ const AdminDashboard = () => {
     completedBookings: 0,
     revenue: 0,
   });
+
+  const { pushNotification } = useNotification();
 
   useEffect(() => {
     fetchBookings();
